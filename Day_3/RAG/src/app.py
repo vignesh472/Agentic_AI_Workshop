@@ -24,10 +24,9 @@ if 'retriever' not in st.session_state:
 st.title("📄 AI Research Papers QA System (Gemini)")
 st.markdown("Ask questions about RAG research papers")
 
-# Sidebar setup
-# st.sidebar.header("Configuration")
-# chunk_size = st.sidebar.slider("Chunk Size", 200, 1000, 500)
-# top_k = st.sidebar.slider("Number of Context Chunks", 1, 10, 3)
+# Fixed values instead of sidebar input
+chunk_size = 500
+top_k = 3
 
 # Document processing
 if not st.session_state.processed:
@@ -54,9 +53,7 @@ sample_qs = [
     "Why Self-Attention",
     "what is LAMBADA"
 ]
-
 st.caption("Sample questions: " + " | ".join([f"`{q}`" for q in sample_qs]))
-# st.caption("Sample questions: " + " | ".join([f"`{q}`" for q in ]))
 
 # Handle question submission
 if question and st.session_state.retriever:
