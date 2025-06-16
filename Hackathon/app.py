@@ -121,7 +121,8 @@ if 'show_quiz' not in st.session_state:
 
 # Always assessment mode
 st.subheader("📝 Create Your Assessment")
-topics_input = st.text_input("Enter topics (comma separated):", "Arrays")
+topics_input = st.text_input("Enter topics (comma separated):", placeholder="e.g. Arrays, Trees, Graphs")
+
 topics = [t.strip() for t in topics_input.split(",") if t.strip()]
 
 if st.button("Generate Quiz") and topics:
