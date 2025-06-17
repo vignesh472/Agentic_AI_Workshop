@@ -1,16 +1,25 @@
 import os
-import json
+import fitz  # PyMuPDF
 from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from utils.common import load_embeddings
+
+PDF_PATH = "data/industry_roles_dataset.pdf"
+
 def build_index():
     docs = []
-    with open("data/industry_benchmarks/sample_roles.jsonl") as f:
-        for line in f:
-            obj = json.loads(line)
-            text = f"Role: {obj['role']}, Company: {obj['company']}, Level: {obj['level']}, Skills: {', '.join(obj['skills'])}"
-            docs.append(Document(page_content=text))
+
+    if not os.path.exists(PDF_PATH):
+        raise FileNotFoundError(f"{PDF_PATH} not found")
+
+    with fitz.open(PDF_PATH) as doc:
+        for page in doc:
+            text = page.get_text()
+            entries = text.strip().split("\n\n")  # rough grouping per role
+            for entry in entries:
+                if "Role:" in entry and "Company:" in entry and "Level:" in entry:
+                    docs.append(Document(page_content=entry.strip()))
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=300, chunk_overlap=20)
     chunks = splitter.split_documents(docs)
@@ -20,11 +29,10 @@ def build_index():
     db.save_local("rag_index.faiss")
 
 
-
 def get_retriever():
     db = FAISS.load_local(
         "rag_index.faiss",
         load_embeddings(),
-        allow_dangerous_deserialization=True  # <- add this line
+        allow_dangerous_deserialization=True
     )
     return db.as_retriever()

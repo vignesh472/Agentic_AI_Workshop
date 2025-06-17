@@ -1,8 +1,7 @@
-# streamlit_app.py
-
 import streamlit as st
 import os
 from dotenv import load_dotenv
+
 from agents.performance_analyzer import analyze_performance
 from agents.expectation_retriever import retrieve_expectations
 from agents.gap_explainer import explain_gap
@@ -13,17 +12,17 @@ from rag.rag_index import build_index
 load_dotenv()
 
 # Build index if not already present
-if not os.path.exists("rag_index.faiss"):
-    build_index()
+if not os.path.exists("rag_index.faiss/index.faiss"):
+    with st.spinner("🔧 Building vector index from role expectations PDF..."):
+        build_index()
 
 # App UI
 st.set_page_config(page_title="Skill Gap Analyzer", layout="centered")
-st.title("🎯 AI Skill Gap Analyzer ")
+st.title("🎯 AI Skill Gap Analyzer")
 
-# Utility to clean and format Gemini output
+# Format Gemini response
 def format_response_for_display(response):
     try:
-        # If using LangChain GoogleGenerativeAI wrapper, response is likely a `BaseMessage` object
         if hasattr(response, 'content'):
             return response.content
         elif isinstance(response, dict) and "content" in response:
@@ -49,35 +48,36 @@ with st.form("analyze_form"):
 
     submitted = st.form_submit_button("Analyze Skill Gap")
 
+# Logic after form submission
 if submitted:
+    # Step 1: Analyze performance
     with st.spinner("🔍 Analyzing performance..."):
         insights = analyze_performance(results_input)
         formatted_insights = format_response_for_display(insights)
-
     st.success("✅ Performance Analysis Complete")
     with st.expander("🔍 Weak Areas"):
         st.markdown(formatted_insights, unsafe_allow_html=True)
 
+    # Step 2: Retrieve role expectations from PDF-based RAG index
     with st.spinner("📡 Retrieving industry expectations..."):
         expectations = retrieve_expectations(role, level)
         formatted_expectations = format_response_for_display(expectations)
-
     st.success("✅ Expectations Retrieved")
     with st.expander("💼 Industry Role Expectations"):
         st.markdown(formatted_expectations, unsafe_allow_html=True)
 
+    # Step 3: Explain gap
     with st.spinner("📉 Explaining the gap..."):
         gap = explain_gap(insights, expectations)
         formatted_gap = format_response_for_display(gap)
-
     st.success("✅ Gap Explanation Ready")
     with st.expander("📉 Skill Gap Explanation"):
         st.markdown(formatted_gap, unsafe_allow_html=True)
 
+    # Step 4: Recommend resources
     with st.spinner("📚 Finding resources..."):
         resources = recommend_resources(gap)
         formatted_resources = format_response_for_display(resources)
-
     st.success("✅ Resources Recommended")
     with st.expander("🎓 Curated Learning Resources"):
         st.markdown(formatted_resources, unsafe_allow_html=True)

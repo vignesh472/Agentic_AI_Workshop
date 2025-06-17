@@ -1,3 +1,10 @@
-{"role": "Backend Engineer", "skills": ["DSA", "Algorithms", "System Design"], "company": "Google", "level": "L3+"}
-{"role": "ML Engineer", "skills": ["Machine Learning", "PyTorch", "Feature Engineering"], "company": "OpenAI", "level": "IC3"}
-{"role": "Frontend Engineer", "skills": ["React", "JavaScript", "CSS"], "company": "Meta", "level": "IC4"}
+{"role": "Backend Engineer", "skills": ["DSA", "Algorithms", "System Design"], "company": "Google", "level": "L3+", "description": "Responsible for building and maintaining the server-side logic, database interaction, and APIs that power web applications."}
+{"role": "ML Engineer", "skills": ["Machine Learning", "PyTorch", "Feature Engineering"], "company": "OpenAI", "level": "IC3", "description": "Focuses on designing, training, and deploying machine learning models to solve real-world problems."}
+{"role": "Frontend Engineer", "skills": ["React", "JavaScript", "CSS"], "company": "Meta", "level": "IC4", "description": "Develops responsive and accessible user interfaces that provide seamless experiences across platforms."}
+{"role": "DevOps Engineer", "skills": ["CI/CD", "Docker", "Kubernetes"], "company": "Amazon", "level": "L4"}
+{"role": "Data Scientist", "skills": ["Data Analysis", "Python", "Statistics"], "company": "Netflix", "level": "IC3"}
+{"role": "Security Engineer", "skills": ["Network Security", "Penetration Testing", "Cryptography"], "company": "Cloudflare", "level": "L3"}
+{"role": "Product Manager", "skills": ["Roadmapping", "Agile", "Stakeholder Management"], "company": "Adobe", "level": "L5"}
+{"role": "AI Researcher", "skills": ["Deep Learning", "Transformer Models", "Research Writing"], "company": "DeepMind", "level": "IC5"}
+{"role": "Frontend Architect", "skills": ["React", "Next.js", "Micro Frontends", "TypeScript", "Web Performance"], "company": "Netflix", "level": "Principal", "description": "Architect roles require planning large-scale UI architecture, optimizing performance, and leading frontend engineering strategy. Candidates must be experts in scalable design patterns and JS frameworks."}
+{"role": "Data Analyst", "skills": ["SQL", "Data Visualization", "Tableau", "Statistics"], "company": "Airbnb", "level": "L3", "description": "Analysts must extract insights from raw data, build dashboards, and support product decisions. Strong statistical thinking and SQL fluency are core expectations."}
