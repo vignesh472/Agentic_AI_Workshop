@@ -11,7 +11,7 @@ def explain_gap(insights, expectations):
     and industry expectations: {expectations}, explain the gap and its impact."""
     
     llm = ChatGoogleGenerativeAI(
-        model="models/chat-bison-001",  # Or "gemini-pro" if you're using that
+        model="models/gemini-1.5-flash",  # Or "gemini-pro" if you're using that
         temperature=0,
         google_api_key=os.getenv("GOOGLE_API_KEY")
     )

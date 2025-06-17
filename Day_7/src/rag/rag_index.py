@@ -2,9 +2,8 @@ import os
 import json
 from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from utils.common import load_embeddings
-
 def build_index():
     docs = []
     with open("data/industry_benchmarks/sample_roles.jsonl") as f:
@@ -20,6 +19,12 @@ def build_index():
     db = FAISS.from_documents(chunks, embeddings)
     db.save_local("rag_index.faiss")
 
+
+
 def get_retriever():
-    db = FAISS.load_local("rag_index.faiss", load_embeddings())
-    return db.as_retriever(search_kwargs={"k": 3})
+    db = FAISS.load_local(
+        "rag_index.faiss",
+        load_embeddings(),
+        allow_dangerous_deserialization=True  # <- add this line
+    )
+    return db.as_retriever()
