@@ -11,7 +11,7 @@ def analyze_performance(results):
     Identify the top-3 weak areas with reasons."""
 
     llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",  # or "models/chat-bison-001"
+        model="gemini-1.5-flash",  
         temperature=0,
         google_api_key=os.getenv("GOOGLE_API_KEY")
     )

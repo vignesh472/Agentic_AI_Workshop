@@ -1,4 +1,5 @@
 # streamlit_app.py
+
 import streamlit as st
 import os
 from dotenv import load_dotenv
@@ -11,19 +12,36 @@ from rag.rag_index import build_index
 # Load API keys
 load_dotenv()
 
-# Build index if not already
+# Build index if not already present
 if not os.path.exists("rag_index.faiss"):
     build_index()
 
-# UI Title
+# App UI
 st.set_page_config(page_title="Skill Gap Analyzer", layout="centered")
-st.title("🎯 AI Skill Gap Analyzer (Gemini 1.5 Flash)")
+st.title("🎯 AI Skill Gap Analyzer ")
 
-# Input section
+# Utility to clean and format Gemini output
+def format_response_for_display(response):
+    try:
+        # If using LangChain GoogleGenerativeAI wrapper, response is likely a `BaseMessage` object
+        if hasattr(response, 'content'):
+            return response.content
+        elif isinstance(response, dict) and "content" in response:
+            return response["content"]
+        elif isinstance(response, str):
+            return response
+        else:
+            return str(response)
+    except Exception as e:
+        return f"❌ Error formatting response: {e}"
+
+# Input form
 with st.form("analyze_form"):
     st.subheader("📊 Enter Learner Performance")
-    results_input = st.text_area("Enter learner scores or feedback", 
-        value='{"scores": [{"topic": "DSA", "score": 45}, {"topic": "Array", "score": 40}, {"topic": "Machine Learning", "score": 30}]}')
+    results_input = st.text_area(
+        "Enter learner scores or feedback",
+        value='{"scores": [{"topic": "DSA", "score": 45}, {"topic": "Array", "score": 40}, {"topic": "Machine Learning", "score": 30}]}'
+    )
 
     st.subheader("🏢 Role Details")
     role = st.text_input("Role", "Backend Engineer")
@@ -32,26 +50,34 @@ with st.form("analyze_form"):
     submitted = st.form_submit_button("Analyze Skill Gap")
 
 if submitted:
-    with st.spinner("Analyzing performance..."):
+    with st.spinner("🔍 Analyzing performance..."):
         insights = analyze_performance(results_input)
-    st.success("Performance Analysis Complete")
-    st.markdown("### 🔍 Weak Areas")
-    st.write(insights)
+        formatted_insights = format_response_for_display(insights)
 
-    with st.spinner("Retrieving industry expectations..."):
+    st.success("✅ Performance Analysis Complete")
+    with st.expander("🔍 Weak Areas"):
+        st.markdown(formatted_insights, unsafe_allow_html=True)
+
+    with st.spinner("📡 Retrieving industry expectations..."):
         expectations = retrieve_expectations(role, level)
-    st.success("Expectations Retrieved")
-    st.markdown("### 💼 Industry Role Expectations")
-    st.write(expectations)
+        formatted_expectations = format_response_for_display(expectations)
 
-    with st.spinner("Explaining the gap..."):
+    st.success("✅ Expectations Retrieved")
+    with st.expander("💼 Industry Role Expectations"):
+        st.markdown(formatted_expectations, unsafe_allow_html=True)
+
+    with st.spinner("📉 Explaining the gap..."):
         gap = explain_gap(insights, expectations)
-    st.success("Gap Explanation Ready")
-    st.markdown("### 📉 Skill Gap Explanation")
-    st.write(gap)
+        formatted_gap = format_response_for_display(gap)
 
-    with st.spinner("Finding resources..."):
+    st.success("✅ Gap Explanation Ready")
+    with st.expander("📉 Skill Gap Explanation"):
+        st.markdown(formatted_gap, unsafe_allow_html=True)
+
+    with st.spinner("📚 Finding resources..."):
         resources = recommend_resources(gap)
-    st.success("Resources Recommended")
-    st.markdown("### 🎓 Curated Learning Resources")
-    st.write(resources)
+        formatted_resources = format_response_for_display(resources)
+
+    st.success("✅ Resources Recommended")
+    with st.expander("🎓 Curated Learning Resources"):
+        st.markdown(formatted_resources, unsafe_allow_html=True)
