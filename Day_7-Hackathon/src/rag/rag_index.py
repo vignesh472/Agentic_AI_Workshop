@@ -5,7 +5,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from utils.common import load_embeddings
 
-PDF_PATH = "data/industry_roles_dataset.pdf"
+PDF_PATH = "data/industry_benchmarks/industry_roles_dataset.pdf"
 
 def build_index():
     docs = []
