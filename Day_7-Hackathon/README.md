@@ -20,25 +20,22 @@ All components interact within a Streamlit web interface.
 ## 📂 Project Structure
 
 ```
-agentic_ai/
-├── .env
-├── requirements.txt
+Day_7-Hackathon/
+├                      # (Your virtual environment - should be in .gitignore)
 ├── src/
-│   └── main.py                     # Streamlit app entry point
-├── data/
-│   └── industry_benchmarks/
-│       └── sample_roles.jsonl     # Benchmark data
-│   ├── agents/
-│   │   ├── performance_analyzer.py
-│   │   ├── expectation_retriever.py
-│   │   ├── gap_explainer.py
-│   │   └── resource_recommender.py
-│   ├── rag/
-│   │   ├── rag_index.py
-│   │   └── rag_utils.py
-│   └── utils/
-│       └── common.py
-└── logs/                           # Log storage (optional)
+│   ├── agents/                  # Agent modules (performance, expectation, gap, etc.)
+│   ├── data/                    # PDF or JSONL files (like role expectations)
+│   ├── rag/                     # RAG logic (retriever/index code)
+│   ├── rag_index.faiss/         # Saved FAISS index
+│   │   ├── index.faiss
+│   │   └── index.pkl
+│   ├── utils/                   # Shared functions (LLM loading, embeddings)
+│   └── app.py                   # Main Streamlit app entry point
+├── .env                         # API keys (e.g., GOOGLE_API_KEY)
+├── .gitignore                   # To ignore venv, .env, __pycache__, etc.
+├── README.md                    # 📄 Project documentation
+└── requirements.txt             # 🧪 Python dependencies
+                          # Log storage (optional)
 ```
 
 ---
