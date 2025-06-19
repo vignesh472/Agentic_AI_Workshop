@@ -1,106 +1,99 @@
-Here’s a complete and clean **`README.md`** file for your `agentic_ai` project, structured for clarity and developer usability:
-
----
-
-```markdown
 # 🤖 Agentic AI Skill Gap Analyzer
 
-The **Agentic AI Skill Gap Analyzer** is a multi-agent system that helps identify learner weaknesses, compares them against industry role expectations, explains the gaps, and recommends targeted resources — all powered by LLMs, LangChain, Gemini Pro, and FAISS.
+A multi-agent AI system designed to help learners understand and address their skill gaps by analyzing their performance, comparing it with industry expectations, explaining the gaps, and recommending learning resources.
 
 ---
 
-## 📁 Project Structure
+## 🌐 Overview
+
+The Agentic AI Skill Gap Analyzer leverages LangChain, LangGraph, Google Gemini, and FAISS to simulate a reasoning workflow involving multiple agents. Each agent is responsible for a specific sub-task:
+
+* **Performance Analyzer**: Identifies weak areas from user data
+* **Expectation Retriever**: Fetches role-specific skill benchmarks
+* **Gap Explainer**: Explains the difference between learner skills and industry expectations
+* **Resource Recommender**: Suggests resources to bridge the identified skill gaps
+
+All components interact within a Streamlit web interface.
+
+---
+
+## 📂 Project Structure
 
 ```
-
-agentic\_ai/
-├── .env                         # Environment variables (e.g., GOOGLE\_API\_KEY)
-├── requirements.txt             # Python dependencies
+agentic_ai/
+├── .env
+├── requirements.txt
 ├── src/
-│   └── main.py                  # Entry point (Streamlit UI)
+│   └── main.py                     # Streamlit app entry point
 ├── data/
-│   └── industry\_benchmarks/
-│       └── sample\_roles.jsonl   # Example role-expectation data
+│   └── industry_benchmarks/
+│       └── sample_roles.jsonl     # Benchmark data
 │   ├── agents/
-│   │   ├── performance\_analyzer.py
-│   │   ├── expectation\_retriever.py
-│   │   ├── gap\_explainer.py
-│   │   └── resource\_recommender.py
+│   │   ├── performance_analyzer.py
+│   │   ├── expectation_retriever.py
+│   │   ├── gap_explainer.py
+│   │   └── resource_recommender.py
 │   ├── rag/
-│   │   ├── rag\_index.py
-│   │   └── rag\_utils.py
+│   │   ├── rag_index.py
+│   │   └── rag_utils.py
 │   └── utils/
 │       └── common.py
-└── logs/                        # Logging folder (optional)
-
-````
-
----
-
-## 🚀 Features
-
-- **Multi-agent architecture** using LangGraph and LangChain Runnables
-- **Performance Analyzer Agent**: Identifies weak areas from learner data
-- **Expectation Retriever Agent**: Uses RAG + FAISS to fetch skill expectations for a given role & level
-- **Gap Explainer Agent**: Compares learner performance with expectations and explains the skill gap
-- **Resource Recommender Agent**: Suggests targeted learning materials
-- **Streamlit UI**: User-friendly web interface
+└── logs/                           # Log storage (optional)
+```
 
 ---
 
-## 🧠 Technologies Used
+## 🤖 Workflow Diagram
 
-- [LangChain](https://www.langchain.com/)
-- [LangGraph](https://docs.langchain.com/langgraph/)
-- [Gemini (Google Generative AI)](https://ai.google.dev/)
-- [FAISS (Facebook AI Similarity Search)](https://github.com/facebookresearch/faiss)
-- [Streamlit](https://streamlit.io/)
-- [PyMuPDF](https://pymupdf.readthedocs.io/) (for PDF parsing)
+```mermaid
+graph TD
+    A[Input: Learner Performance Data] --> B[Performance Analyzer Agent]
+    B --> C[Expectation Retriever Agent]
+    C --> D[Gap Explainer Agent]
+    D --> E[Resource Recommender Agent]
+    E --> F[Output: Skill Gaps & Learning Resources]
+```
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚖️ Technologies Used
 
-### 1. Clone the repository
+* **LangChain**: Orchestrates LLM interactions
+* **LangGraph**: Enables multi-agent state transitions
+* **Gemini (Google Generative AI)**: Handles prompt-based reasoning and explanation
+* **FAISS**: Stores and retrieves role benchmark data
+* **Streamlit**: UI framework
+* **PyMuPDF**: Parses role expectation PDFs
+
+---
+
+## 📆 Setup Instructions
+
+### 1. Clone and Setup
 
 ```bash
 git clone https://github.com/your-username/agentic_ai.git
 cd agentic_ai
-````
-
-### 2. Create and activate a virtual environment
-
-```bash
-python3 -m venv venv
-source venv/bin/activate  # Mac/Linux
-venv\Scripts\activate     # Windows
-```
-
-### 3. Install dependencies
-
-```bash
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate for Windows
 pip install -r requirements.txt
 ```
 
-### 4. Create a `.env` file
+### 2. Create `.env`
 
 ```env
-GOOGLE_API_KEY=your_gemini_api_key_here
+GOOGLE_API_KEY=your_google_gemini_api_key_here
 ```
 
----
+### 3. Add Role Expectations PDF
 
-## 📂 Add Benchmark PDF
-
-Place your role expectations PDF file here:
+Place the file here:
 
 ```
 data/industry_benchmarks/industry_roles_dataset.pdf
 ```
 
----
-
-## ▶️ Run the App
+### 4. Run the Application
 
 ```bash
 streamlit run src/main.py
@@ -108,20 +101,7 @@ streamlit run src/main.py
 
 ---
 
-## 🧩 Agent Workflow
-
-```text
-[Input] → PerformanceAnalyzerAgent
-        → ExpectationRetrieverAgent
-        → GapExplainerAgent
-        → ResourceRecommenderAgent → [Output]
-```
-
-Each agent passes contextual state to the next in sequence using `StateGraph`.
-
----
-
-## 📈 Sample Input
+## 🔍 Example Input
 
 ```json
 {
@@ -135,37 +115,30 @@ Each agent passes contextual state to the next in sequence using `StateGraph`.
 
 ---
 
-## ✅ Expected Output
+## 🚀 Features
 
-* List of weak areas
-* Role-specific expectations
-* Explanation of gaps
-* Curated learning resources
-
----
-
-## 🛠 Future Improvements
-
-* Add support for custom learner data file uploads
-* Multi-role comparison dashboard
-* Admin upload for updating role expectations PDF
-* Feedback loop with learner progress
+* Interactive Streamlit UI
+* FAISS-powered RAG search on benchmark expectations
+* Structured gap explanations via Gemini
+* Recommended tutorials, videos, or problems
 
 ---
 
-## 👨‍💻 Author
+## 📊 Output Includes
 
-Developed by Vigneshwaran A (SNSIHUB) using Agentic AI principles.
-
----
-
-## 📝 License
-
-MIT License — free to use, modify, and distribute.
-
-```
+* **Weak Areas**: Identified from input data
+* **Role Expectations**: Retrieved using RAG
+* **Gap Analysis**: Comparison of learner vs. expected
+* **Learning Resources**: Suggested based on gap
 
 ---
 
-Let me know if you want to add badges, a demo GIF, or a [deployment guide](f).
-```
+## 👩‍💼 Author
+
+Developed by **Vigneshwaran A (SNSIHUB)**
+
+---
+
+## 📄 License
+
+MIT License. Free to use, distribute, and modify.
