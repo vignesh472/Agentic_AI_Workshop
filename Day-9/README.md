@@ -93,7 +93,7 @@ data/industry_benchmarks/industry_roles_dataset.pdf
 ### 4. Run the Application
 
 ```bash
-streamlit run src/main.py
+streamlit run src/app.py
 ```
 
 ---
