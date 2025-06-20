@@ -202,11 +202,11 @@ export default function AdaptiveAssessModal({ open, onClose, concepts }) {
                           </div>
                         ) : (
                           <div className="space-y-2">
-                            <div className="flex gap-2 flex-wrap">
+                            {/* <div className="flex gap-2 flex-wrap">
                               <span className={`px-3 py-1 rounded-full text-xs font-bold ${gradeResults[currentQ].score?.correctness === 1 ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700'}`}>Correctness: {gradeResults[currentQ].score?.correctness ?? '-'}</span>
                               <span className={`px-3 py-1 rounded-full text-xs font-bold ${gradeResults[currentQ].score?.completeness === 1 ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700'}`}>Completeness: {gradeResults[currentQ].score?.completeness ?? '-'}</span>
                               <span className={`px-3 py-1 rounded-full text-xs font-bold ${gradeResults[currentQ].score?.reasoning === 1 ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700'}`}>Reasoning: {gradeResults[currentQ].score?.reasoning ?? '-'}</span>
-                            </div>
+                            </div> */}
                             <div className="bg-blue-100 text-blue-900 rounded-xl p-3 border border-blue-200 flex items-start gap-2">
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mt-0.5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
                               <span>{gradeResults[currentQ].feedback}</span>
