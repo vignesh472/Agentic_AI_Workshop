@@ -1,0 +1,7 @@
+{"concept": "Recursion", "content": "Recursion is a method where a function calls itself to solve smaller subproblems. Key idea: base case + recursive step. Example: factorial(n) = n * factorial(n-1)."}
+{"concept": "Hash Tables", "content": "Hash tables store key-value pairs using a hash function. Collisions are handled using chaining or open addressing. Lookup is O(1) average time."}
+{"concept": "Linked Lists", "content": "A linked list is a linear data structure with nodes pointing to the next. Useful for dynamic memory allocation. Types: singly, doubly, circular."}
+{"concept": "Binary Trees", "content": "Binary trees are hierarchical structures where each node has up to two children. Useful for searching and sorting. Special cases: BST, AVL trees."}
+{"concept": "Time Complexity", "content": "Time complexity measures how runtime grows with input size. Big O notation expresses worst-case growth. Examples: O(1), O(n), O(log n), O(n^2)."}
+{"concept": "Pointers", "content": "Pointers are variables that store memory addresses. Crucial in low-level programming (e.g., C). Used for dynamic allocation, arrays, and linked data structures."}
+{"concept": "Stacks", "content": "A stack is a LIFO data structure. Common operations: push, pop. Applications: backtracking, recursion simulation, expression parsing."}

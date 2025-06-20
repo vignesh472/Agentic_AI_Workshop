@@ -1,0 +1,1 @@
+Data Structures are ways to organize and store data efficiently. Examples include arrays, linked lists, stacks, and queues. Choosing the right data structure can improve the performance of algorithms and applications. 
