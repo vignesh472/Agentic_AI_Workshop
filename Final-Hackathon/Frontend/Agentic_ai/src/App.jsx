@@ -4,7 +4,7 @@ import MasteryEvaluator from './components/MasteryEvaluator/MasteryEvaluatorForm
 
 export default function App() {
   return (
-    <div className="min-h-screen min-w-[1000px] l bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen min-w-[1300px] l bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
       <div className="min-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <header className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white dark:bg-gray-800 shadow-lg mb-6 border-4 border-blue-100 dark:border-gray-700">

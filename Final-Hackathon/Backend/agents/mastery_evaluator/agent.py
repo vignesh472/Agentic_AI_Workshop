@@ -1,6 +1,8 @@
 # agents/mastery_evaluator/agent.py
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import JsonOutputParser
+from langchain.tools import Tool
+from langchain.agents import initialize_agent, AgentType
 from agents.mastery_evaluator.prompts import get_mastery_prompt
 from config import GEMINI_API_KEY, GEMINI_MODEL
 

@@ -2,6 +2,8 @@
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import JsonOutputParser
+from langchain.tools import Tool
+from langchain.agents import initialize_agent, AgentType
 from config import GEMINI_API_KEY, GEMINI_MODEL
 from agents.booster_recommender.prompts import get_booster_prompt
 

@@ -578,31 +578,27 @@ console.log("prereqResult",prereqResult)
           </div>
         </div>
       )}
-      {prereqResult && (
+  {prereqResult && (
   <div className="mt-8 bg-yellow-50 dark:bg-yellow-900 rounded-xl p-6 shadow-lg">
-    <div className="flex flex-wrap items-center gap-3 mb-4">
-  <svg className="w-7 h-7 text-yellow-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-
-  <h2 className="text-2xl font-bold text-yellow-800 dark:text-yellow-200">
-    Prerequisite Recommendations
-  </h2>
-      {/* {prereqResult.status === 'success' && (
-        <span className="ml-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-200 text-amber-800 dark:bg-amber-700 dark:text-amber-100">Success</span>
-      )} */}
+    <div className="flex items-center mb-4">
+      <svg className="w-7 h-7 mr-2 text-yellow-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <h2 className="text-2xl font-bold text-yellow-800 dark:text-yellow-200">Prerequisite Recommendations</h2>
     </div>
 
     {prereqResult.message ? (
       <div className="text-yellow-700 dark:text-yellow-200 font-medium">{prereqResult.message}</div>
     ) : (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {prereqResult.retrieved && prereqResult.retrieved.map((prereq, idx) => (
-          <div
-            key={idx}
-            className={`bg-white dark:bg-gray-800 rounded-lg shadow p-5 border-l-4 border-yellow-400 flex flex-col h-full ${
-              prereqResult.retrieved.length === 1 ? 'col-span-full' : ''
-            }`}
+          <div 
+            key={idx} 
+            className={`
+              bg-white dark:bg-gray-800 rounded-lg shadow p-5 border-l-4 border-yellow-400
+              ${prereqResult.retrieved.length === 1 ? 'col-span-full' : ''}
+              ${prereqResult.retrieved.length === 2 ? 'sm:col-span-1' : ''}
+            `}
           >
             <div className="flex items-center mb-2">
               <span className="inline-block bg-yellow-100 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-100 px-3 py-1 rounded-full text-xs font-semibold mr-2">
@@ -619,7 +615,7 @@ console.log("prereqResult",prereqResult)
               </svg>
               {prereq.concept}
             </h3>
-            <p className="text-gray-700 dark:text-gray-200 mb-3 flex-1 text-sm">{prereq.summary}</p>
+            <p className="text-gray-700 dark:text-gray-200 mb-3">{prereq.summary}</p>
             <div className="flex items-start mt-2 bg-yellow-100 dark:bg-yellow-800 rounded p-3">
               <svg className="w-5 h-5 mr-2 text-yellow-600 dark:text-yellow-300 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

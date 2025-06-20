@@ -1,5 +1,7 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import JsonOutputParser
+from langchain.tools import Tool
+from langchain.agents import initialize_agent, AgentType
 from config import GEMINI_API_KEY, GEMINI_MODEL
 from agents.adaptive_assessor.prompts import get_adaptive_prompt, get_grading_prompt
 
