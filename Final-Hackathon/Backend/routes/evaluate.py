@@ -8,8 +8,32 @@ from agents.booster_recommender.agent import generate_booster_recommendations
 from agents.prerequisite_retriever.agent import retrieve_prerequisites
 from fastapi import Body
 from graphs.mastery_graph import build_mastery_graph
+from pydantic import BaseModel
+from typing import Dict, List
 
 router = APIRouter()
+
+
+
+# Pydantic models
+class UserSelectedOption(BaseModel):
+    key: str
+    value: str
+
+class QuestionData(BaseModel):
+    level: int
+    question: str
+    correct_option: str
+    explanation: str
+    options: Dict[str, str]
+
+class GradeRequest(BaseModel):
+    concept: str
+    question: str
+    user_answer: str
+    ideal_answer: str
+    question_data: QuestionData
+    user_selected_option: UserSelectedOption
 
 @router.post("/mastery")
 async def evaluate_mastery(input_data: MasteryEvaluationInput):
@@ -35,55 +59,40 @@ async def prerequisite_gap_detector(weak_concepts: list = Body(...)):
     return {"status": "success", "gaps": result}
 
 
-# @router.post("/adaptive-assess")
-# async def adaptive_question_generator(
-#     body: dict = Body(...)
-# ):
-#     concept = body.get("concept")
-#     level = body.get("level", "moderate")  # default fallback
-#     user_id = "test_user_001"  # Static user ID
-#     if concept is None:
-#         return {"status": "error", "message": "'concept' is required."}
-#     result = await generate_adaptive_questions(concept, level)
-#     log_agent_response(
-#         agent_name="adaptive_assessor",
-#         user_id=user_id,
-#         input_data={"concept": concept, "level": level},
-#         response=result
-#     )
-#     return {"status": "success", "adaptive_questions": result}
-
-
 
 
 @router.post("/adaptive/questions")
 async def get_questions(
     concept: str = Body(...), 
-    level: str = Body(...)
+    level: str = Body(...),
+    category: str = Body(...)
 ):
-    print("come in ✅")  # This should show in the terminal
-    return await generate_adaptive_questions(concept, level)
+    # print("come in ✅")  # This should show in the terminal
+    return await generate_adaptive_questions(concept, level,category)
 
 @router.post("/adaptive/grade")
-async def get_grade(
-    concept: str = Body(...),
-    question: str = Body(...),
-    user_answer: str = Body(...),
-    ideal_answer: str = Body(...)
-):
-    return await grade_answer(concept, question, user_answer, ideal_answer)
-
+async def get_grade(payload: GradeRequest):
+    return await grade_answer(
+        concept=payload.concept,
+        question=payload.question,
+        user_answer=payload.user_answer,
+        ideal_answer=payload.ideal_answer,
+        question_data=payload.question_data.dict(),
+        user_selected_option=payload.user_selected_option.dict()
+    )
 @router.post("/booster-recommend")
 async def booster_recommendation_endpoint(
     body: dict = Body(...)
 ):
     concepts = body.get("concepts", [])
     preference = body.get("preference", "text")
+    category = body.get("category", [])
+    assessmentResult=body.get("assessmentResult", None)
 
     if not concepts:
         return {"status": "error", "message": "No concepts provided."}
 
-    result = await generate_booster_recommendations(concepts, preference)
+    result = await generate_booster_recommendations(concepts, preference,category,assessmentResult)
     log_agent_response(
         agent_name="booster_recommender",
         user_id="test_user_001",

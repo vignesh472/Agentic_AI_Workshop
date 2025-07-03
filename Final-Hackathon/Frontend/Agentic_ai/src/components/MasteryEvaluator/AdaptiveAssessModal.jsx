@@ -1,25 +1,31 @@
 import React, { useState } from 'react';
 
 const masteryColors = {
-  Weak: 'bg-rose-100 text-rose-800 border-rose-400',
-  Moderate: 'bg-amber-100 text-amber-800 border-amber-400',
-  Strong: 'bg-green-100 text-green-800 border-green-400',
+  Weak: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
+  Moderate: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+  Strong: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
 };
 
 const masteryIcons = {
   Weak: (
-    <svg className="w-6 h-6 text-rose-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+    <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
   ),
   Moderate: (
-    <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8" /></svg>
+    <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+    </svg>
   ),
   Strong: (
-    <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-  ),
+    <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  )
 };
 
-export default function AdaptiveAssessModal({ open, onClose, concepts }) {
-  const [step, setStep] = useState(1); // 1: select, 2: assess, 3: summary
+export default function AdaptiveAssessModal({ open, onClose, concepts, gabsData, onComplete }) {
+  const [step, setStep] = useState(1);
   const [selected, setSelected] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -28,10 +34,10 @@ export default function AdaptiveAssessModal({ open, onClose, concepts }) {
   const [grading, setGrading] = useState({});
   const [gradeResults, setGradeResults] = useState({});
   const [currentQ, setCurrentQ] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
 
   if (!open) return null;
 
-  // Step 1: Select concept
   const handleConceptClick = async (concept) => {
     setSelected(concept);
     setLoading(true);
@@ -40,13 +46,39 @@ export default function AdaptiveAssessModal({ open, onClose, concepts }) {
     setUserAnswers({});
     setGradeResults({});
     setCurrentQ(0);
+    setSelectedOption(null);
     setStep(2);
+
+    let matchingCategoryConcepts = [];
+
+    if (gabsData?.[concept.name]) {
+      matchingCategoryConcepts = gabsData[concept.name];
+    } else {
+      const foundEntry = Object.entries(gabsData || {}).find(
+        ([_, concepts]) =>
+          concepts.some(
+            c => c.trim().toLowerCase() === concept.name.trim().toLowerCase()
+          )
+      );
+
+      if (foundEntry) {
+        matchingCategoryConcepts = foundEntry[1];
+      }
+    }
+
+    const conceptPayload = {
+      concept: concept.name,
+      level: concept.mastery?.toLowerCase() || 'beginner',
+      category: matchingCategoryConcepts.join(', ')
+    };
+
     try {
       const response = await fetch('http://localhost:5000/api/evaluate/adaptive/questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ concept: concept.name, level: concept.mastery.toLowerCase() })
+        body: JSON.stringify(conceptPayload)
       });
+
       if (!response.ok) throw new Error('Failed to fetch assessment');
       const data = await response.json();
       setResult(data);
@@ -58,159 +90,251 @@ export default function AdaptiveAssessModal({ open, onClose, concepts }) {
     }
   };
 
-  // Step 2: Answer questions
-  const handleInputChange = (value) => {
-    setUserAnswers((prev) => ({ ...prev, [currentQ]: value }));
+  const handleOptionSelect = (optionKey) => {
+    setSelectedOption(optionKey);
+    setUserAnswers((prev) => ({ ...prev, [currentQ]: optionKey }));
   };
+
+  // const handleGrade = async () => {
+  //   const q = result.questions[currentQ];
+  //   setGrading((prev) => ({ ...prev, [currentQ]: true }));
+  //   setGradeResults((prev) => ({ ...prev, [currentQ]: null }));
+    
+  //   try {
+  //     const response = await fetch('http://localhost:5000/api/evaluate/adaptive/grade', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({
+  //         concept: selected.name,
+  //         question: q.question,
+  //         ideal_answer: q.correct_option,
+  //         user_answer: userAnswers[currentQ] || ''
+  //       })
+  //     });
+      
+  //     if (!response.ok) throw new Error('Failed to grade answer');
+  //     const data = await response.json();
+  //     setGradeResults((prev) => ({ ...prev, [currentQ]: data }));
+  //   } catch (err) {
+  //     setGradeResults((prev) => ({ ...prev, [currentQ]: { error: err.message || 'Grading failed' } }));
+  //   } finally {
+  //     setGrading((prev) => ({ ...prev, [currentQ]: false }));
+  //   }
+  // };
+
 
   const handleGrade = async () => {
-    const q = result.questions[currentQ];
-    setGrading((prev) => ({ ...prev, [currentQ]: true }));
-    setGradeResults((prev) => ({ ...prev, [currentQ]: null }));
-    try {
-      const response = await fetch('http://localhost:5000/api/evaluate/adaptive/grade', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          concept: selected.name,
-          question: q.question,
-          ideal_answer: q.ideal_answer,
-          user_answer: userAnswers[currentQ] || ''
-        })
-      });
-      if (!response.ok) throw new Error('Failed to grade answer');
-      const data = await response.json();
-      setGradeResults((prev) => ({ ...prev, [currentQ]: data }));
-    } catch (err) {
-      setGradeResults((prev) => ({ ...prev, [currentQ]: { error: err.message || 'Grading failed' } }));
-    } finally {
-      setGrading((prev) => ({ ...prev, [currentQ]: false }));
-    }
-  };
-
+  const q = result.questions[currentQ];
+  setGrading((prev) => ({ ...prev, [currentQ]: true }));
+  setGradeResults((prev) => ({ ...prev, [currentQ]: null }));
+  
+  try {
+    const response = await fetch('http://localhost:5000/api/evaluate/adaptive/grade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        concept: selected.name,
+        concept_data: selected, // Send the entire selected concept object
+        question: q.question,
+        question_data: q, // Send the entire question object
+        ideal_answer: q.correct_option,
+        user_answer: userAnswers[currentQ] || '',
+        user_selected_option: {  // Structured data about the selected option
+          key: userAnswers[currentQ],
+          value: q.options[userAnswers[currentQ]]
+        }
+      })
+    });
+    
+    if (!response.ok) throw new Error('Failed to grade answer');
+    const data = await response.json();
+    setGradeResults((prev) => ({ ...prev, [currentQ]: data }));
+  } catch (err) {
+    setGradeResults((prev) => ({ ...prev, [currentQ]: { error: err.message || 'Grading failed' } }));
+  } finally {
+    setGrading((prev) => ({ ...prev, [currentQ]: false }));
+  }
+};
   const handleNext = () => {
     if (currentQ < result.questions.length - 1) {
       setCurrentQ(currentQ + 1);
+      setSelectedOption(userAnswers[currentQ + 1] || null);
     } else {
-      setStep(3); // summary
+      setStep(3);
     }
   };
 
   const handlePrev = () => {
-    if (currentQ > 0) setCurrentQ(currentQ - 1);
+    if (currentQ > 0) {
+      setCurrentQ(currentQ - 1);
+      setSelectedOption(userAnswers[currentQ - 1] || null);
+    }
   };
 
   const handleRestart = () => {
+    if (onComplete && typeof onComplete === 'function') {
+      onComplete({
+        concept: selected.name,
+        answers: userAnswers,
+        scores: gradeResults,
+      });
+    }
     setStep(1);
     setSelected(null);
     setResult(null);
     setUserAnswers({});
     setGradeResults({});
     setCurrentQ(0);
+    setSelectedOption(null);
     setError(null);
   };
 
-  // Modal glassmorphism style
+  const getOptionLetter = (index) => {
+    return String.fromCharCode(65 + index);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="relative bg-white/80 dark:bg-gray-900/80 rounded-3xl shadow-2xl p-0 w-full max-w-4xl animate-fadeIn border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col" style={{ maxHeight: '90vh' }}>
-        <button onClick={onClose} className="absolute top-5 right-6 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-3xl font-bold z-10">&times;</button>
-        {/* Header */}
-        <div className="px-8 pt-8 pb-4 border-b border-gray-100 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60">
-          <h2 className="text-3xl font-extrabold mb-1 text-center text-blue-700 dark:text-blue-300 tracking-tight">Adaptive Assessment</h2>
-          <p className="mb-2 text-gray-600 dark:text-gray-300 text-center text-lg">Personalized, step-by-step mastery check</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+      <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-2xl font-bold z-10">
+          &times;
+        </button>
+        
+        <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+          <h2 className="text-xl font-bold text-center text-slate-800 dark:text-white">Adaptive Assessment</h2>
+          <p className="text-center text-slate-500 dark:text-slate-400 text-sm mt-1">
+            {step === 1 ? 'Select a concept to assess' : 
+             step === 2 ? `Assessing: ${selected?.name}` : 
+             'Assessment complete'}
+          </p>
         </div>
         
-        {/* Content area with scroll */}
-        <div className="flex-1 overflow-y-auto">
-          {/* Step 1: Select Concept */}
+        <div className="flex-1 overflow-y-auto p-6">
           {step === 1 && (
-            <div className="p-8 flex flex-col gap-6">
-              <div className="text-center text-lg font-medium mb-2">Select a concept to begin:</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {concepts.filter(c => c.mastery === 'Weak' || c.mastery === 'Moderate').map((c, i) => (
                   <button
                     key={i}
                     onClick={() => handleConceptClick(c)}
-                    className={`flex flex-col items-center gap-2 p-6 rounded-2xl shadow-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80 dark:bg-gray-800/80 hover:scale-105 ${masteryColors[c.mastery]}`}
                     disabled={loading}
+                    className={`p-4 rounded-xl border ${masteryColors[c.mastery]} flex flex-col items-center transition hover:shadow-md`}
                   >
-                    <div>{masteryIcons[c.mastery]}</div>
-                    <div className="text-xl font-semibold">{c.name}</div>
-                    <span className={`mt-1 px-3 py-0.5 rounded-full text-xs font-bold border ${masteryColors[c.mastery]}`}>{c.mastery}</span>
+                    <div className="mb-2">
+                      {masteryIcons[c.mastery]}
+                    </div>
+                    <div className="font-medium text-slate-800 dark:text-white">{c.name}</div>
+                    <div className="text-xs mt-1 text-slate-500 dark:text-slate-400">{c.mastery} Mastery</div>
                   </button>
                 ))}
               </div>
-              {error && <div className="text-center text-red-500 mt-2">{error}</div>}
+              {error && <div className="text-red-500 text-center">{error}</div>}
             </div>
           )}
           
-          {/* Step 2: Assessment */}
           {step === 2 && (
-            <div className="p-8 flex flex-col gap-6">
-              {loading && <div className="text-center text-blue-500 text-lg">Loading assessment...</div>}
+            <div className="space-y-6">
+              {loading && <div className="text-center py-8">Loading assessment...</div>}
               {result && result.questions && (
                 <>
-                  {/* Progress Bar */}
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
-                    <div className="h-full bg-blue-400 transition-all" style={{ width: `${((currentQ + 1) / result.questions.length) * 100}%` }}></div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${((currentQ + 1) / result.questions.length) * 100}%` }}
+                    ></div>
                   </div>
-                  {/* Question Card */}
-                  <div className="bg-blue-50 dark:bg-blue-900 rounded-2xl p-6 shadow flex flex-col gap-4 animate-fadeIn">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-blue-600 dark:text-blue-200 font-bold text-lg">Q{currentQ + 1} of {result.questions.length}</span>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                        Question {currentQ + 1} of {result.questions.length}
+                      </span>
+                      <span className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-slate-600 dark:text-slate-300">
+                        Level {result.questions[currentQ].level}
+                      </span>
                     </div>
-                    <div className="font-semibold text-lg mb-2">{result.questions[currentQ].question}</div>
-                    <textarea
-                      className="w-full p-3 rounded-xl border border-blue-300 text-gray-900 text-base focus:ring-2 focus:ring-blue-400 min-h-[100px]"
-                      placeholder="Type your answer..."
-                      value={userAnswers[currentQ] || ''}
-                      onChange={e => handleInputChange(e.target.value)}
-                      disabled={grading[currentQ]}
-                    />
-                    <div className="flex gap-3 mt-2 flex-wrap">
+                    
+                    <div className="text-lg font-medium text-slate-800 dark:text-white">
+                      {result.questions[currentQ].question}
+                    </div>
+                    
+                    <div className="space-y-3 mt-4">
+                      {Object.entries(result.questions[currentQ].options).map(([key, value], index) => (
+                        <button
+                          key={key}
+                          onClick={() => handleOptionSelect(key)}
+                          className={`w-full text-left p-4 rounded-lg border transition-all ${
+                            selectedOption === key 
+                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                              : 'border-slate-300 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-700'
+                          }`}
+                        >
+                          <div className="flex items-center">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 ${
+                              selectedOption === key 
+                                ? 'bg-blue-500 text-white' 
+                                : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                            }`}>
+                              {getOptionLetter(index)}
+                            </div>
+                            <div className="text-slate-800 dark:text-white">{value}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <div className="flex gap-3 pt-2">
                       <button
-                        className="px-5 py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-2"
                         onClick={handleGrade}
-                        disabled={grading[currentQ] || !userAnswers[currentQ] || gradeResults[currentQ]}
+                        disabled={grading[currentQ] || !selectedOption || gradeResults[currentQ]}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 disabled:opacity-50"
                       >
                         {grading[currentQ] ? (
-                          <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
                         ) : (
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          </svg>
                         )}
                         Submit
                       </button>
+                      
                       <button
-                        className="px-5 py-2 rounded-xl bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition disabled:opacity-50"
                         onClick={handlePrev}
                         disabled={currentQ === 0}
-                      >Back</button>
+                        className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition disabled:opacity-50"
+                      >
+                        Back
+                      </button>
+                      
                       <button
-                        className="px-5 py-2 rounded-xl bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition disabled:opacity-50"
                         onClick={handleNext}
                         disabled={!gradeResults[currentQ]}
-                      >{currentQ === result.questions.length - 1 ? 'Finish' : 'Next'}</button>
+                        className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition disabled:opacity-50 ml-auto"
+                      >
+                        {currentQ === result.questions.length - 1 ? 'Finish' : 'Next'}
+                      </button>
                     </div>
-                    {/* Feedback */}
+                    
                     {gradeResults[currentQ] && (
-                      <div className="mt-4 text-base animate-fadeIn">
+                      <div className={`mt-4 p-4 rounded-lg border ${
+                        gradeResults[currentQ].is_correct 
+                          ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/50' 
+                          : 'bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-900/50'
+                      }`}>
                         {gradeResults[currentQ].error ? (
-                          <div className="flex items-center gap-2 text-red-500 font-semibold">
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                            {gradeResults[currentQ].error}
-                          </div>
+                          <div className="text-red-500">{gradeResults[currentQ].error}</div>
                         ) : (
-                          <div className="space-y-2">
-                            {/* <div className="flex gap-2 flex-wrap">
-                              <span className={`px-3 py-1 rounded-full text-xs font-bold ${gradeResults[currentQ].score?.correctness === 1 ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700'}`}>Correctness: {gradeResults[currentQ].score?.correctness ?? '-'}</span>
-                              <span className={`px-3 py-1 rounded-full text-xs font-bold ${gradeResults[currentQ].score?.completeness === 1 ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700'}`}>Completeness: {gradeResults[currentQ].score?.completeness ?? '-'}</span>
-                              <span className={`px-3 py-1 rounded-full text-xs font-bold ${gradeResults[currentQ].score?.reasoning === 1 ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700'}`}>Reasoning: {gradeResults[currentQ].score?.reasoning ?? '-'}</span>
-                            </div> */}
-                            <div className="bg-blue-100 text-blue-900 rounded-xl p-3 border border-blue-200 flex items-start gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mt-0.5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
-                              <span>{gradeResults[currentQ].feedback}</span>
+                          <div className={gradeResults[currentQ].is_correct ? 'text-emerald-800 dark:text-emerald-200' : 'text-rose-800 dark:text-rose-200'}>
+                            <div className="font-medium mb-2">
+                              {gradeResults[currentQ].is_correct ? 'Correct!' : 'Incorrect'}
                             </div>
+                            <p className="mb-2">{gradeResults[currentQ].feedback}</p>
+                            <div className="text-sm font-medium">Explanation:</div>
+                            <p className="text-sm">{result.questions[currentQ].explanation}</p>
                           </div>
                         )}
                       </div>
@@ -221,35 +345,45 @@ export default function AdaptiveAssessModal({ open, onClose, concepts }) {
             </div>
           )}
           
-          {/* Step 3: Summary */}
           {step === 3 && (
-            <div className="p-8 flex flex-col gap-6 items-center animate-fadeIn">
-              <div className="text-2xl font-bold text-blue-700 dark:text-blue-200 mb-2">Assessment Complete!</div>
-              <div className="w-full bg-white/70 dark:bg-gray-800/70 rounded-2xl shadow p-6 flex flex-col gap-4">
+            <div className="space-y-6">
+              <div className="text-center py-4">
+                <svg className="w-12 h-12 text-emerald-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Assessment Complete</h3>
+                <p className="text-slate-500 dark:text-slate-400 mt-1">You've completed the assessment for {selected?.name}</p>
+              </div>
+              
+              <div className="space-y-4">
                 {result.questions.map((q, idx) => (
-                  <div key={idx} className="flex flex-col gap-1 pb-4 border-b border-gray-200 dark:border-gray-700 last:border-0">
-                    <div className="font-semibold text-blue-900 dark:text-blue-100">Q{idx + 1}: {q.question}</div>
-                    <div className="text-gray-700 dark:text-gray-200">Your answer: <span className="font-medium">{userAnswers[idx]}</span></div>
+                  <div key={idx} className="border-b border-slate-200 dark:border-slate-700 pb-4 last:border-0">
+                    <div className="font-medium text-slate-800 dark:text-white">Q{idx + 1}: {q.question}</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                      Your answer: {userAnswers[idx] ? `${userAnswers[idx]}. ${q.options[userAnswers[idx]]}` : 'No answer'}
+                    </div>
+                    <div className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                      Correct answer: {q.correct_option}. {q.options[q.correct_option]}
+                    </div>
                     {gradeResults[idx] && !gradeResults[idx].error && (
-                      <div className="flex gap-2 mt-1 flex-wrap">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${gradeResults[idx].score?.correctness === 1 ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700'}`}>C: {gradeResults[idx].score?.correctness ?? '-'}</span>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${gradeResults[idx].score?.completeness === 1 ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700'}`}>Cp: {gradeResults[idx].score?.completeness ?? '-'}</span>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${gradeResults[idx].score?.reasoning === 1 ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-700'}`}>R: {gradeResults[idx].score?.reasoning ?? '-'}</span>
+                      <div className={`mt-2 text-sm ${
+                        gradeResults[idx].is_correct ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                      }`}>
+                        <span className="font-medium">Feedback:</span> {gradeResults[idx].feedback}
                       </div>
-                    )}
-                    {gradeResults[idx] && gradeResults[idx].feedback && (
-                      <div className="text-blue-700 dark:text-blue-200 text-sm mt-1">{gradeResults[idx].feedback}</div>
-                    )}
-                    {gradeResults[idx] && gradeResults[idx].error && (
-                      <div className="text-red-500 text-sm mt-1">{gradeResults[idx].error}</div>
                     )}
                   </div>
                 ))}
               </div>
-              <button
-                className="mt-6 px-8 py-3 rounded-2xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 transition shadow-lg"
-                onClick={handleRestart}
-              >Try Another Concept</button>
+              
+              <div className="mt-6">
+                <button
+                  onClick={handleRestart}
+                  className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                >
+                  Start New Assessment
+                </button>
+              </div>
             </div>
           )}
         </div>

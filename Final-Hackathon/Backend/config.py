@@ -6,7 +6,8 @@ from pymongo import MongoClient
 load_dotenv()
 
 # Fetch Gemini API key
-GEMINI_API_KEY ="AIzaSyCDVQGX0MlmI1rI74V5BM5WWx83bXD72lY"
+# GEMINI_API_KEY ="AIzaSyCtXFm0H2Bq8DV8H6yS7Ov8C9ON7ufxQo8"
+GEMINI_API_KEY ="AIzaSyBXAMtJ-2irD9xuwLYtelTLcvMi-ie0BKs"
 
 # Validate presence of the key
 if not GEMINI_API_KEY:

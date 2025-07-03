@@ -12,8 +12,7 @@ embedding = GoogleGenerativeAIEmbeddings(
     google_api_key=GEMINI_API_KEY
 )
 
-
-
+# This module handles loading PDF documents, splitting them into chunks, and creating a vector store for retrieval.
 def load_corpus_from_pdfs(folder="data/"):
     docs = []
     for file in Path(folder).glob("*.pdf"):

@@ -8,7 +8,7 @@ class MasteryEvaluationInput(BaseModel):
     learner_id: str
     quiz_scores: Dict[str, float]
     coding_logs: Dict[str, int]
-    retry_data: Dict[str, int]
+    retry_data: Dict[str, str]
     time_data: Dict[str, float]
 
 def log_agent_response(agent_name: str, user_id: str, input_data: dict, response: dict):
