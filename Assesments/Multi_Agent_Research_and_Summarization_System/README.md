@@ -141,14 +141,3 @@ The conditional logic routes queries smartly based on context, maximizing releva
 Developed by **Vigneshwaran A**, powered by LangGraph, Gemini, and LangChain.
 
 ---
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-```
-
----
-
-Let me know if you'd like me to generate a `requirements.txt` file or Dockerfile as well.
-```
