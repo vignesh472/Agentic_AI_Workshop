@@ -1,53 +1,78 @@
-Here's a detailed `README.md` for your **Multi-Agent RAG System** built with Streamlit, LangGraph, Gemini, and FAISS:
+Here's your **updated full `README.md`** including the new `LangGraph` structure visualization using `st.expander()` and `st.graphviz_chart()`.
 
 ---
 
-```markdown
+````markdown
 # 🧠 Multi-Agent RAG System (LangGraph + Web + RAG + LLM)
 
-This is an intelligent, fully agentic research assistant built using:
+This project implements an intelligent multi-agent research assistant using:
 
-- 🧱 [LangGraph](https://github.com/langchain-ai/langgraph) for dynamic agent workflows  
-- 🔍 DuckDuckGo Search for real-time web querying  
-- 📄 RAG (Retrieval-Augmented Generation) using FAISS + Gemini embeddings  
-- 🤖 Google Gemini 1.5 Flash for LLM processing and summarization  
-- 💻 A simple Streamlit UI for local document queries and live search
-
----
-
-## 🚀 Features
-
-- **Multi-agent routing** (`web`, `rag`, `llm`) based on user query
-- **Local document ingestion**: PDF, TXT, DOCX
-- **Semantic chunking** with overlap using LangChain text splitter
-- **FAISS vector database** for fast similarity-based retrieval
-- **Query summarization** to generate concise results
-- **Web search** fallback using DuckDuckGo
-- **Gemini 1.5 Flash LLM** for cost-effective, high-speed reasoning
+- 🔀 **LangGraph**: Orchestrate dynamic agent workflows
+- 🧠 **Gemini 1.5 Flash**: Google LLM for generation and summarization
+- 🔍 **DuckDuckGo Search**: Web search integration
+- 📄 **RAG via FAISS**: Retrieval-augmented QA from local PDFs, DOCX, and TXT files
+- 🧩 **Streamlit**: Intuitive UI with interactive elements
 
 ---
 
-## 📁 Folder Structure
+## 🖼️ LangGraph Structure
 
-```
-
-my\_docs/          # Put your local PDF/TXT/DOCX files here
-app.py            # Main Streamlit application
-README.md         # This file
-
+```python
+with st.expander("🧩 LangGraph Structure"):
+    st.graphviz_chart("""
+    digraph {
+        Router -> Web;
+        Router -> RAG;
+        Router -> LLM;
+        Web -> Summarizer;
+        RAG -> Summarizer;
+        LLM -> Summarizer;
+    }
+    """)
 ````
 
+This illustrates the flow:
+
+* Query goes through `Router`
+* Based on classification, it’s sent to `Web`, `RAG`, or `LLM`
+* All paths end at the `Summarizer` node which produces the final output
+
 ---
 
-## 🛠 Requirements
+## 🗂 Folder Structure
 
-Install dependencies using pip:
+```
+.
+├── app.py                # Main Streamlit app
+├── my_docs/              # Folder for local PDFs, DOCX, and TXT files
+├── .env                  # Environment file containing your Gemini API key
+├── README.md             # This file
+└── requirements.txt      # Python dependencies
+```
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1. 🔑 Environment Setup
+
+Create a `.env` file in the root folder:
+
+```env
+GOOGLE_API_KEY=your_google_api_key_here
+```
+
+> You can obtain your Gemini API key from [https://makersuite.google.com/app](https://makersuite.google.com/app)
+
+---
+
+### 2. 📦 Install Dependencies
 
 ```bash
 pip install -r requirements.txt
-````
+```
 
-> **Sample `requirements.txt`**
+#### Sample `requirements.txt`:
 
 ```txt
 streamlit
@@ -63,81 +88,79 @@ google-generativeai
 
 ---
 
-## 🔑 Environment Setup
-
-Create a `.env` file in your project root with your Gemini API key:
-
-```env
-GOOGLE_API_KEY=your_google_api_key_here
-```
-
-You can get this key from: [https://makersuite.google.com/app](https://makersuite.google.com/app)
-
----
-
-## 🏃 Running the App
+### 3. 🏁 Run the Application
 
 ```bash
 streamlit run app.py
 ```
 
-Once started, the app will:
+---
 
-1. Load documents from `my_docs/` (if available)
-2. Split and embed content using Gemini Embeddings
-3. Initialize a FAISS vectorstore for RAG
-4. Wait for user input
-5. Dynamically route the query to:
+## 💡 Features
 
-   * 🌐 Web Search
-   * 📄 RAG (local document QA)
-   * 🤖 Direct LLM response
-6. Output a clean summarized response
+* 🔍 **Ask Anything**: Input a query, get routed to Web, RAG, or LLM
+* 🧠 **Automatic Routing**: Classifies queries for best agent path
+* 📄 **Document Ingestion**: Reads from local `my_docs/` folder
+* 🔎 **Semantic Retrieval**: Uses FAISS + Gemini embeddings
+* ✨ **Concise Summarization**: Generates final answers with Gemini LLM
+* 🌐 **Live Web Search**: If query needs real-time info
 
 ---
 
-## 🧠 How the Agent Workflow Works
+## ✏️ Sample Queries
 
-The app uses **LangGraph** to define a modular `StateGraph` workflow with the following nodes:
-
-* `router`: Classifies the query to determine the best route (`web`, `rag`, `llm`)
-* `web`: Performs live DuckDuckGo search
-* `rag`: Retrieves and answers using local documents via FAISS
-* `llm`: Uses Gemini 1.5 directly
-* `summarizer`: Summarizes the final content using Gemini
-
-The conditional logic routes queries smartly based on context, maximizing relevance and minimizing cost.
+* What is LangGraph?
+* Summarize my document on AI safety.
+* What's the latest in generative AI?
+* Find points from the uploaded PDF on machine learning.
 
 ---
 
-## ✨ Example Use Cases
+## 🔍 How It Works
 
-* "What is LangGraph?"
-* "Summarize my research notes from this PDF"
-* "What are the recent advancements in quantum AI?"
-* "Can you summarize this 10-page DOCX document?"
+1. **File Loader**
+
+   * Supports `.pdf`, `.docx`, and `.txt` formats
+   * Loads and splits into chunks using LangChain's `RecursiveCharacterTextSplitter`
+
+2. **Vector Store (FAISS)**
+
+   * Embeds content using Gemini Embeddings (`models/embedding-001`)
+   * Enables semantic search with `retriever.as_retriever()`
+
+3. **LangGraph Workflow**
+
+   * Router determines query type
+   * Three agents: `web_agent`, `rag_agent`, `llm_agent`
+   * Summary produced by `summarizer_agent`
+
+4. **Streamlit Interface**
+
+   * User types a query
+   * Results are displayed interactively with visual workflow structure
 
 ---
 
-## ❓ Troubleshooting
+## ⚠️ Troubleshooting
 
-* **No API key found**: Ensure `.env` file exists and `GOOGLE_API_KEY` is defined.
-* **No documents loaded**: Ensure `my_docs/` folder exists and contains readable files.
-* **Web search failed**: Make sure you have internet access and the `duckduckgo-search` package is installed.
+* **API Key Not Found**: Ensure `.env` exists and key is valid.
+* **No Documents Loaded**: Make sure `my_docs/` contains valid PDF, DOCX, or TXT files.
+* **Web Search Errors**: Check internet and `duckduckgo-search` installation.
 
 ---
 
 ## 🧪 Future Improvements
 
-* Memory and history tracking for multi-turn conversations
-* UI enhancements: file uploader, chat-like interface
-* Support for image and audio inputs
-* More robust document parsing for scanned PDFs
+* Memory and follow-up questions (conversation state)
+* File upload UI inside Streamlit
+* PDF OCR (scanned documents)
+* Chat-style interface
 
 ---
 
 ## 👤 Author
 
-Developed by **Vigneshwaran A**, powered by LangGraph, Gemini, and LangChain.
+Built by **Vigneshwaran A SNSIHUB**
+Powered by OpenAI, LangGraph, Google Generative AI, and Streamlit
 
 ---
