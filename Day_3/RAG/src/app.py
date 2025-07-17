@@ -32,7 +32,7 @@ top_k = 3
 if not st.session_state.processed:
     with st.spinner("Processing documents..."):
         try:
-            raw_docs = load_and_chunk_pdfs("data")
+            raw_docs = load_and_chunk_pdfs("../data")
             chunks = chunk_documents(raw_docs, chunk_size=chunk_size)
             retriever = HybridRetriever(chunks)
             st.session_state.retriever = retriever
