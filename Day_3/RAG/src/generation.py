@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+
+
 # Configure Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
@@ -24,7 +26,7 @@ safety_settings = [
 ]
 
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="gemini-2.5-flash",
     generation_config=generation_config,
     safety_settings=safety_settings
 )
@@ -48,14 +50,19 @@ def generate_answer(query, context_chunks):
     ANSWER:
     """
     
-    # Generate response
+    # Generate response using Gemini
     response = model.generate_content(prompt)
     
     # Extract sources
     sources = {}
-    for chunk in context_chunks:
-        text, filename, page_num = chunk
+    for text, filename, page_num in context_chunks:
         key = f"{filename} (Page {page_num})"
         sources[key] = sources.get(key, 0) + 1
-    
-    return response.text, list(sources.keys())
+
+    # Dummy token usage (Gemini doesn't provide token stats like OpenAI)
+    token_usage = {
+        "prompt_tokens": None,
+        "completion_tokens": None
+    }
+
+    return response.text, list(sources.keys()), token_usage
